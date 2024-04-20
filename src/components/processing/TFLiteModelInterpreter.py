@@ -10,7 +10,7 @@ class TFLiteModelInterpreter:
             self.input_details = self.interpreter.get_input_details()
             self.output_details = self.interpreter.get_output_details()
         except Exception as e:
-            print(f"Error al cargar el modelo TensorFlow Lite: {e}")
+            print(f"Error al cargar el modelo TensorFlow Lite {model_path}: {e}")
             raise ValueError("No se pudo cargar el modelo TFLite.")
 
     def set_input_tensor(self, input_data):
