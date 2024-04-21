@@ -13,7 +13,6 @@ def start_depth_estimation(model_path, save_path):
     if start.lower() != 's':
         print("Saliendo del programa.")
         return
-    
     # Instanciar la clase del interprete del modelo de Tensorflow Lite
     try:
         depth_model_interpreter = TFLiteModelInterpreter(model_path=model_path)
@@ -23,7 +22,6 @@ def start_depth_estimation(model_path, save_path):
     except Exception as e:
         print(f"Se encontro un error inesperado: {e}")
         return
-    
     # Preguntarle al usuario si desea o no alcenar los resultados de los videos
     enable_storage = False
     choice = input("Elige una opción:\n1 - Guardar resultados\n2 - No guardar resultados\n")
@@ -37,13 +35,11 @@ def start_depth_estimation(model_path, save_path):
         print("\nLos resultados de las predicciones no serán almacenados en el dispositivo.")
     else:
         print("Opción no válida. No se guardarán los resultados.")
-
     # Iniciar la captura de video
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
         print("Error: No se pudo acceder a la cámara web.")
         return
-    
     # Ciclo principal del programa
     try:
         prev_frame_time = time.time()
@@ -55,41 +51,31 @@ def start_depth_estimation(model_path, save_path):
             if not ret:
                 print("Error: No se pudo obtener el frame.")
                 break
-            
             # Preprocesar el frame capturado
             input_data = preprocess_frame(frame)
-            
             # Preparar el tensor de entrada con el frame preprocesado
             depth_model_interpreter.set_input_tensor(input_data=input_data)
-            
             # Realizar la inferencia de estimacion de fondo monocular usando la instancia del interprete
             depth_model_interpreter.invoke()
-            
             # Almacenar el resultado de la inferencia
             output_data = depth_model_interpreter.get_output_tensor()
-            
             # Redimensionar la imagen de salida a la resolucion de la captura
             output_resized = cv2.resize(output_data, (frame.shape[1], frame.shape[0]))
-            output_normalized = cv2.normalize(output_resized, None, 0, 255, cv2.NORM_MINMAX)
-            colored_output = cv2.applyColorMap(np.uint8(output_normalized), cv2.COLORMAP_INFERNO)  # Cambiar aquí para otros colormaps
-            
+            output_normalized = cv2.normalize(output_resized, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
+            colored_output = cv2.applyColorMap(np.uint8(output_normalized), cv2.COLORMAP_BONE)
             # Calcular los FPS
             new_frame_time = time.time()
             fps = 1 / (new_frame_time - prev_frame_time)
             prev_frame_time = new_frame_time
             fps_text = f"FPS: {int(fps)}"
-            
             # Combinar el frame original con la prediccion
             combined_output = np.hstack((frame, colored_output))
-            
             # Mostrar el frame con las predicciones
             cv2.putText(combined_output, fps_text, (7, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 255, 0), 3, cv2.LINE_AA)
             cv2.imshow('Visualizador', combined_output)
-            
             # Guardar el video si es necesario
             if enable_storage:
                 recorder.write_frame(combined_output)
-
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
     finally:
