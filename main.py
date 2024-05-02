@@ -1,5 +1,11 @@
-from src.components.user_interface.user_interface import start_depth_estimation
+"""_summary_
+"""
+from src.components.user_interface.depth_estimation_app import DepthEstimationApp
 
-start_depth_estimation(
-    "src/tensorflow_models/lite_models/monocular-depth-estimation3.0_fp16.tflite",
-    "src/videos")
+if __name__ == '__main__':
+    # Inicializar la aplicacion
+    app = DepthEstimationApp(
+        "src/tensorflow_models/lite_models/monocular-depth-estimation2.0_fp16.tflite"
+    )
+    # Empezar con la ejecucion
+    app.run()

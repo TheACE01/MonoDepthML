@@ -1,13 +1,17 @@
-import cv2
+"""_summary_
+"""
 from datetime import datetime
+import cv2
 
 class VideoRecorder:
+    """_summary_
+    """
     def __init__(self, save_path, frame_rate=20.0, resolution=(640, 480), codec='mp4v'):
         """
         Inicializa el VideoRecorder con la ruta del archivo y configuraciones.
         """
         # Formato de fecha y hora para el nombre del archivo
-        current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        current_time = datetime.now().strftime("%Y-%m-%d_%H.%M.%S")
         self.save_path = f"{save_path}/{current_time}.mp4"
         self.frame_rate = frame_rate
         self.resolution = resolution
