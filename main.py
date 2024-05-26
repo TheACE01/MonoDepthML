@@ -1,5 +1,4 @@
-"""_summary_
-"""
+"""_summary_"""
 from src.components.user_interface.depth_estimation_app import DepthEstimationApp
 
 if __name__ == '__main__':

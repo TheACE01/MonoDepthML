@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import cv2
 import tensorflow as tf
@@ -25,6 +26,8 @@ class TFLiteModelInterpreter:
             ValueError: Error si no se puede cargar el modelo.
         """
         try:
+            # Desactivar logs de TensorFlow
+            os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Solo mostrar errores
             self.interpreter = tf.lite.Interpreter(model_path=model_path)
             self.interpreter.allocate_tensors()
             self.input_details = self.interpreter.get_input_details()
@@ -95,10 +98,13 @@ class TFLiteModelInterpreter:
         Returns:
             ndarray: Frame procesado y listo para ser usado como entrada en el modelo.
         """
-        # Redimensionar el frame al tamaño de entrada esperado por el modelo
+        # Redimensionar la imagen (frame) a las dimensiones especificadas (width, height)
         img_resized = cv2.resize(frame, (width, height))
-        # Normalizar los pixeles
-        img_normalized = img_resized / 255.0
-        # Expandir las dimensiones para adaptarse al formato de entrada del modelo (batch size)
-        input_data = np.expand_dims(img_normalized, axis=0).astype(np.float32)
+        # Añadir una nueva dimensión al array de la imagen redimensionada, convirtiéndolo en un tensor de 4 dimensiones
+        # Esto es necesario para que sea compatible con el modelo de entrada (batch size, height, width, channels)
+        input_data = np.expand_dims(img_resized, axis=0)
+        # Convertir los datos de la imagen a tipo de dato float32, escalando los valores de píxeles al rango [0, 1]
+        # Esto es necesario para preparar los datos para el modelo TensorFlow
+        input_data = tf.image.convert_image_dtype(input_data, tf.float32)
+        # Devolver los datos de entrada preparados
         return input_data

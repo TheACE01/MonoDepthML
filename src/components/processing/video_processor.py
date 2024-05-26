@@ -31,17 +31,17 @@ class VideoProcessor:
             output_data (ndarray): Datos de salida del modelo de inferencia.
             frame (ndarray): Frame original capturado de la cámara.
         """
-        # Redimensionar la imagen a el tamaño original de la captura de video
-        output_resized = cv2.resize(output_data, (frame.shape[1], frame.shape[0]))
-        # Normalizar los pixeles
-        output_normalized = cv2.normalize(
-            output_resized,
-            None, alpha=0,
-            beta=255,
-            norm_type=cv2.NORM_MINMAX)
-        # Aplicar un ColorMap para visualizar mejor la estimación
-        colored_output = cv2.applyColorMap(np.uint8(output_normalized), self.color_map)
-        # Combinar el frame original con la predicción
+        # Normalizar los datos de salida a un rango entre 0 y 1
+        output_data = (output_data - output_data.min()) / (output_data.max() - output_data.min())
+        # Escalar los datos normalizados al rango de 0 a 255 y convertirlos a tipo de dato uint8 (8 bits sin signo)
+        output_data = (output_data * 255).astype(np.uint8)
+        # Redimensionar los datos de salida para que coincidan con el tamaño del frame original
+        output_data_resized = cv2.resize(output_data.squeeze(), (frame.shape[1], frame.shape[0]))
+        # Invertir los colores de los datos redimensionados (esto puede ser útil para ciertas visualizaciones)
+        output_data_inverted = cv2.bitwise_not(output_data_resized)
+        # Aplicar un mapa de colores para visualizar mejor la estimación
+        colored_output = cv2.applyColorMap(output_data_inverted, self.color_map)
+        # Combinar el frame original con la predicción coloreada en una sola imagen horizontalmente
         self.output = np.hstack((frame, colored_output))
 
     def calculate_fps(self):
