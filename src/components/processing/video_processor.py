@@ -66,6 +66,16 @@ class VideoProcessor:
             (100, 255, 0),
             3,
             cv2.LINE_AA)
+        # Redimensionar la ventana para asegurarse de que se ajuste a la pantalla
+        height, width, _ = self.output.shape
+        screen_res = 1280, 720  # Ajusta esto según la resolución de tu pantalla
+        scale_width = screen_res[0] / width
+        scale_height = screen_res[1] / height
+        scale = min(scale_width, scale_height)
+        window_width = int(width * scale)
+        window_height = int(height * scale)
+        cv2.namedWindow('Visualizador', cv2.WINDOW_NORMAL)
+        cv2.resizeWindow('Visualizador', window_width, window_height)
         cv2.imshow('Visualizador', self.output)
 
     def get_output(self):
